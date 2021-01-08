@@ -6,6 +6,7 @@ from oadriver.remote.webelement import WebElement as RemoteWebElement
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import re
 
 
 def _make_autopct(values):
@@ -31,13 +32,22 @@ class WebElement(RemoteWebElement):
         new_context = np.delete(context, 0, axis=1)
         return pd.DataFrame(data=new_context, columns=colums[1:], index=context[:,0])
 
-    def graph_save_png(values, labels, filename):
-        colors = ["lightskyblue", "steelblue", "sandybrown", "darkgrey", "coral", "pink", "rosybrown", "lightblue",
-                  "plum",
-                  "lightsalmon", "salmon", "mediumaquamarine", "mediumseagreen"]
-        plt.pie(x=values, labels=labels, autopct=_make_autopct(values), colors=colors)
-        plt.axis('off')
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rcParams['axes.unicode_minus'] = False  # 这两行需要手动设置
-        plt.savefig(filename + ".png")
-        return filename
+    def get_dict_result(self):
+        pages = self._soup.find('table', {'class': 'bug_stat_table'})
+        colums = [i.text.strip() for i in pages.find_all('th')]
+        cells = [i.text.strip() for i in pages.find_all('td')]
+        context = np.array(cells).reshape(int(len(cells) / len(colums)), len(colums))
+        new_context = np.delete(context, 0, axis=1)
+        all_links = pages.find_all('a', attrs={"href":re.compile('BugStoryRelation_relative_id')})
+        pattern = re.compile(r".*\[BugStoryRelation_relative_id\]=(\d+)")
+        id_list = []
+        for link in all_links:
+            id_list.append(pattern.findall(link['href'])[0])
+        final_values = []
+        new_list = sorted(set(id_list), key=id_list.index)
+        for index in range(len(context[:,0])-1):
+            items = {u'需求名称': context[:, 0][index], 'href': 'https://www.tapd.cn/20041161/prong/stories/view/%s' % new_list[index]}
+            for ite in range(len(colums[1:])):
+                items[colums[1:][ite]] = new_context[index][ite]
+            final_values.append(items)
+        return final_values

@@ -8,6 +8,7 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
+from email.utils import parseaddr, formataddr
 import os
 
 
@@ -40,18 +41,21 @@ def _create_regression_message(version, table1):  # image1, table1, image2, tabl
 
 
 def _create_requrie_message(version, table1):  # image1, table1, image2, table2, table3
-    table_context = """<h3>三、缺陷关联需求情况统计</h3><table border="1"><caption>V%s关联需求统计</caption><tr><th>需求名称</th>""" % version
-    for colum in table1.columns:
+    table_context = """<h3>三、缺陷关联需求情况统计</h3><table border="1"><caption>V%s关联需求统计</caption><tr>""" % version
+
+    for colum in table1[-1].keys():
+        if colum == 'href':
+            continue
         table_context += '<th>' + colum + '</th>'
     table_context += '</tr><tr>'
-    for index, row in table1.iterrows():
-        table_context += '<td>' + index + '</td>'
-        for item in row:
-            table_context += '<td>' + item + '</td>'
+    for cells in table1[:-1]:
+        cells_list = list(cells.values())
+        table_context += '<td><a href='+cells_list[1]+'>' + cells_list[0] + '</a></td>'
+        for cell in cells_list[2:]:
+            table_context += '<td>' + cell + '</td>'
         table_context += '</tr>'
     table_context += '</table>'
     return table_context
-
 
 def make_mail_message(version, df1, df2, df3):
     mail_msg = """<p>Hi, all~</p><h1>V%s缺陷统计情况如下</h1>""" % version
@@ -62,19 +66,20 @@ def make_mail_message(version, df1, df2, df3):
     return mail_msg
 
 
-def send_mail(version, df1, df2, df3, pic1, pic2):
+def send_mail(version, df1, df2, df3, pic1, pic2, receivers):
     # 设置收发邮件信息
     sender = 'xiaoqiang@codoon.com'
-    receivers = ['xiaoqiang@codoon.com']  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
     # 企业邮箱 SMTP 服务
     mail_host = "smtp.exmail.qq.com"  # 设置服务器
     mail_user = "xiaoqiang@codoon.com"  # 用户名
     mail_pass = "WFUB52E8ePCi9k6d"  # 口令
     # ===========配置相关-=============
     message = MIMEMultipart('related')
-    message['From'] = Header("TAPD版本统计", 'utf-8')  # 设置邮件发件人
-    message['TO'] = Header("测试团队", 'utf-8')  # 设置邮件收件人
-    message['Subject'] = 'V%s缺陷统计' % version  # 设置邮件标题
+    # message['From'] = Header("TAPD版本统计", 'utf-8')  # 设置邮件发件人
+    # message['TO'] = Header("测试团队", 'utf-8')  # 设置邮件收件人
+    message['From'] = _format_addr(u'TAPD版本统计 <%s>' % sender)  # 设置邮件发件人
+    message['to'] = _list_format_addr(receivers)  # 设置邮件收件人
+    message['Subject'] = Header('V%s缺陷统计' % version)  # 设置邮件标题
     msgAlternative = MIMEMultipart('alternative')
     message.attach(msgAlternative)
     # 邮件正文
@@ -106,3 +111,12 @@ def send_mail(version, df1, df2, df3, pic1, pic2):
         print("已发送统计报告邮件")
     except smtplib.SMTPException:
         raise Exception("Error: 无法发送邮件")
+
+
+def _format_addr(s):
+    addr = parseaddr(s)
+    return formataddr(addr)
+
+
+def _list_format_addr(li):
+    return ','.join(li)
