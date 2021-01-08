@@ -4,7 +4,12 @@
 # @File    : oadriver.py
 from oadriver.remote.webdriver import Webdriver
 import os, json
+from datetime import datetime
 from oadriver.Tapd.webelement import WebElement as TapdElement
+
+
+def _get_create_date():
+    return datetime.now().strftime("%Y-%m-%d")
 
 
 def _load_log_conf():
@@ -36,15 +41,20 @@ class TapDriver(Webdriver):
 
     def bugs_regression_stat(self, version):
         bug_regress_url = _load_bug_trace_conf()['bug_regression_url']
-        req_body = str(_load_bug_trace_conf()['bug_reg_body']) % version
+        req_body = str(_load_bug_trace_conf()['bug_reg_body']) % (_get_create_date(), version)
         return self.create_tapd_element(self._tapd.post(bug_regress_url, eval(req_body)))
 
     def bugs_general_stat(self, version):
         bug_general_url = _load_bug_trace_conf()['bug_general_url']
-        req_body = str(_load_bug_trace_conf()['bug_gen_body']) % version
+        req_body = str(_load_bug_trace_conf()['bug_gen_body']) % (_get_create_date(), version)
+        return self.create_tapd_element(self._tapd.post(bug_general_url, eval(req_body)))
+
+    def bugs_24hour_handle(self, version):
+        bug_general_url = _load_bug_trace_conf()['bug_handle_url']
+        req_body = str(_load_bug_trace_conf()['bug_handle_body']) % (_get_create_date(), _get_create_date(), version)
         return self.create_tapd_element(self._tapd.post(bug_general_url, eval(req_body)))
 
     def bugs_touch_require(self, version):
         bug_general_url = _load_bug_trace_conf()['bug_general_url']
-        req_body = str(_load_bug_trace_conf()['bug_requrie_body']) % version
+        req_body = str(_load_bug_trace_conf()['bug_requrie_body']) % (_get_create_date(), version)
         return self.create_tapd_element(self._tapd.post(bug_general_url, eval(req_body)))

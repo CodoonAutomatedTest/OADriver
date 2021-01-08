@@ -24,6 +24,9 @@ class WebElement(RemoteWebElement):
     def __init__(self, resp, features='html.parser'):
         super().__init__(resp,features)
 
+    def get_string_html(self):
+        return self._soup.prettify()
+
     def get_symbol_result(self):
         context = self._soup.find('table', {'class': 'bug_stat_table'})
         colums = [i.text.strip() for i in context.find_all('th')]
