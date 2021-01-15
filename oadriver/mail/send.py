@@ -90,7 +90,11 @@ def send_mail(version, df1, df2, df3, df4, pic1, pic2, pic3, receivers):
     # message['TO'] = Header("测试团队", 'utf-8')  # 设置邮件收件人
     message['From'] = _format_addr(u'TAPD版本统计 <%s>' % sender)  # 设置邮件发件人
     message['to'] = _list_format_addr(receivers)  # 设置邮件收件人
-    message['Subject'] = Header('V%s缺陷统计' % version)  # 设置邮件标题
+    if is_number(version):
+        title = "非主版本需求%s" % version
+    else:
+        title = "V%s" % version
+    message['Subject'] = Header('%s缺陷统计' % title)  # 设置邮件标题
     msgAlternative = MIMEMultipart('alternative')
     message.attach(msgAlternative)
     # 邮件正文
@@ -137,3 +141,10 @@ def _format_addr(s):
 
 def _list_format_addr(li):
     return ','.join(li)
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
