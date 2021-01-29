@@ -28,9 +28,9 @@ class WebElement(RemoteWebElement):
         return self._soup.prettify()
 
     def get_symbol_result(self):
-        context = self._soup.find('table', {'class': 'bug_stat_table'})
-        colums = [i.text.strip() for i in context.find_all('th')]
-        cells = [i.text.strip() for i in context.find_all('td')]
+        contexts = self._soup.find('table', {'class': 'bug_stat_table'})
+        colums = [i.text.strip() for i in contexts.find_all('th')]
+        cells = [i.text.strip() for i in contexts.find_all('td')]
         context = np.array(cells).reshape(int(len(cells) / len(colums)), len(colums))
         new_context = np.delete(context, 0, axis=1)
         return pd.DataFrame(data=new_context, columns=colums[1:], index=context[:,0])
@@ -54,3 +54,14 @@ class WebElement(RemoteWebElement):
                 items[colums[1:][ite]] = new_context[index][ite]
             final_values.append(items)
         return final_values
+
+    def get_dict_result2(self):
+        pages = self._soup.find('table', {'class': 'bug_stat_table'})
+        colums = [i.text.strip() for i in pages.find_all('th')]
+        cells = [i.text.strip() for i in pages.find_all('td')]
+        context = np.array(cells).reshape(int(len(cells) / len(colums)), len(colums))
+        new_context = np.delete(context, 0, axis=1)
+        df = pd.DataFrame(data=new_context, columns=colums[1:], index=context[:, 0])
+        all_links = pages.find_all('a')
+        des_links = [all_links[1]['href'], all_links[3]['href']]
+        return df,des_links

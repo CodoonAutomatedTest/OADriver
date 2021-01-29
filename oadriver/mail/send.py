@@ -58,26 +58,29 @@ def _create_requrie_message(version, table1):  # image1, table1, image2, table2,
     return table_context
 
 
-def _create_24hours_message(version, df1, df2):
+def _create_24hours_message(version, df1, df2, links):
     unhandled_sum = sum(df2.get('>1天').values)
+    unhandled_new = df2.get('>1天').values[0]
+    unhandled_process = df2.get('>1天').values[1]
     total_sum = int(df1.loc[['总计'], "小计"].values[0])
     rate = (1 - unhandled_sum/total_sum) * 100
-    table_context = """<h3>三、24小时缺陷处理率</h3><p>%s共计发现bug数：%s个，bug保持新和接受/处理状态超过一天的数量共计：%s个。</p><p>缺陷24小时处理率为1-%s/%s=%.01f%%</p><p><img 
-    src="cid:image3"></p>""" % (version, total_sum, unhandled_sum, unhandled_sum, total_sum, rate)
+    table_context = """<h3>三、24小时缺陷处理率</h3><p>%s共计发现bug数：%s个，bug保持新和接受/处理状态超过一天的数量共计：%s个。(其中状态新为<a href=%s>%s个</a>, 状态接受/处理为<a href=%s>%s个</a>)</p><p>缺陷24小时处理率为1-%s/%s=%.01f%%</p><p><img 
+    src="cid:image3"></p>""" % (version, total_sum, unhandled_sum, links[0], unhandled_new, links[1], unhandled_process, unhandled_sum, total_sum, rate)
     return table_context
 
 
-def make_mail_message(version, df1, df2, df3, df4):
+def make_mail_message(version, df1, df2, df3, df4, links):
+    print(df4)
     mail_msg = """<p>Hi, all~</p><h1>V%s缺陷统计情况如下</h1>""" % version
     context1 = _create_general_message(version, df1)
     context2 = _create_regression_message(version, df2)
     context3 = _create_requrie_message(version, df3)
-    context4 = _create_24hours_message(version, df1, df4)
+    context4 = _create_24hours_message(version, df1, df4, links)
     mail_msg = mail_msg + context1 + context2 + context4 + context3
     return mail_msg
 
 
-def send_mail(version, df1, df2, df3, df4, pic1, pic2, pic3, receivers):
+def send_mail(version, df1, df2, df3, df4, links, pic1, pic2, pic3, receivers):
     # 设置收发邮件信息
     sender = 'xiaoqiang@codoon.com'
     # 企业邮箱 SMTP 服务
@@ -98,7 +101,7 @@ def send_mail(version, df1, df2, df3, df4, pic1, pic2, pic3, receivers):
     msgAlternative = MIMEMultipart('alternative')
     message.attach(msgAlternative)
     # 邮件正文
-    mail_msg = make_mail_message(version, df1, df2, df3, df4)
+    mail_msg = make_mail_message(version, df1, df2, df3, df4, links)
     msgAlternative.attach(MIMEText(mail_msg, 'html', 'utf-8'))
 
     current_path = os.path.abspath(os.path.dirname(__file__))
