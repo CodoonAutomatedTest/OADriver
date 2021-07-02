@@ -40,20 +40,34 @@ def _create_regression_message(version, table1):  # image1, table1, image2, tabl
     return table_context
 
 
-def _create_requrie_message(version, table1):  # image1, table1, image2, table2, table3
+def _create_requrie_message(version, table1, non_and, non_ios, non_api, non_h5, non_hard):  # image1, table1, image2, table2, table3
     table_context = """<h3>四、缺陷关联需求情况统计</h3><table border="1"><caption>V%s关联需求统计</caption><tr>""" % version
-
+    temp_context = ''
     for colum in table1[-1].keys():
         if colum == 'href':
             continue
         table_context += '<th>' + colum + '</th>'
+        if colum == 'android':
+            temp_context += '<td>' + non_and + '</td>'
+        elif colum == 'H5':
+            temp_context += '<td>' + non_h5 + '</td>'
+        elif colum == 'ios':
+            temp_context += '<td>' + non_ios + '</td>'
+        elif colum == 'api':
+            temp_context += '<td>' + non_api + '</td>'
+        elif colum == '硬件':
+            temp_context += '<td>' + non_hard + '</td>'
+        elif colum == '小计':
+            total = int(non_and) + int(non_h5) + int(non_ios) + int(non_api) + int(non_hard)
+            temp_context += '<td>' + str(total) + '</td>'
     table_context += '</tr><tr>'
-    for cells in table1[:-1]:
+    for cells in table1:
         cells_list = list(cells.values())
         table_context += '<td><a href=' + cells_list[1] + '>' + cells_list[0] + '</a></td>'
         for cell in cells_list[2:]:
             table_context += '<td>' + cell + '</td>'
         table_context += '</tr>'
+    table_context += '<td>未关联需求的缺陷</td>' + temp_context
     table_context += '</table>'
     return table_context
 
@@ -69,18 +83,17 @@ def _create_24hours_message(version, df1, df2, links):
     return table_context
 
 
-def make_mail_message(version, df1, df2, df3, df4, links):
-    print(df4)
+def make_mail_message(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_hard, df4, links):
     mail_msg = """<p>Hi, all~</p><h1>V%s缺陷统计情况如下</h1>""" % version
     context1 = _create_general_message(version, df1)
     context2 = _create_regression_message(version, df2)
-    context3 = _create_requrie_message(version, df3)
+    context3 = _create_requrie_message(version, df3, non_and, non_ios, non_api, non_h5, non_hard)
     context4 = _create_24hours_message(version, df1, df4, links)
     mail_msg = mail_msg + context1 + context2 + context4 + context3
     return mail_msg
 
 
-def send_mail(version, df1, df2, df3, df4, links, pic1, pic2, pic3, receivers):
+def send_mail(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_hard, df4, links, pic1, pic2, pic3, receivers):
     # 设置收发邮件信息
     sender = 'xiaoqiang@codoon.com'
     # 企业邮箱 SMTP 服务
@@ -101,7 +114,7 @@ def send_mail(version, df1, df2, df3, df4, links, pic1, pic2, pic3, receivers):
     msgAlternative = MIMEMultipart('alternative')
     message.attach(msgAlternative)
     # 邮件正文
-    mail_msg = make_mail_message(version, df1, df2, df3, df4, links)
+    mail_msg = make_mail_message(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_hard, df4, links)
     msgAlternative.attach(MIMEText(mail_msg, 'html', 'utf-8'))
 
     current_path = os.path.abspath(os.path.dirname(__file__))

@@ -1,6 +1,7 @@
 {
 	"bug_regression_url": "https://www.tapd.cn/20041161/bugtrace/bugreports/stat_other/regression/customreport-1120041161001000076",
 	"bug_general_url": "https://www.tapd.cn/20041161/bugtrace/bugreports/stat_general/general",
+	"bug_non_requrie_url": "https://www.tapd.cn/20041161/bugtrace/buglists/query/1/created/desc?query_token=2021070239117f5e31646dde14de2cee94739e1e",
 	"bug_handle_url": "https://www.tapd.cn/20041161/bugtrace/bugreports/stat_age/age/systemreport-1000000000000000015",
 	"bug_reg_body": {
 		"data[Bugreport][time_type]": 1,
@@ -91,5 +92,19 @@
 		"data[Bugreport][order_type]": "order_default",
 		"data[is_ajax]": "",
 		"dsc_token": "6hdGIx9L2E6uqJhp"
+	},
+	"bug_non_requrie_body": {
+		"relationship[]": "AND",
+		"custom_fields": "reporter;id;title;status;priority;severity;current_owner;created;version_report;project_id",
+		"viewfilter[1][column]": "version_report",
+		"viewfilter[1][operator]": "=",
+		"viewfilter[1][value][][]": "%s",
+		"viewfilter[2][column]": "BugStoryRelation_relative_id",
+		"viewfilter[2][operator]": "is_null",
+		"viewfilter[2][value][]": "NULL",
+		"viewfilter[3][column]": "os",
+		"viewfilter[3][operator]": "IN",
+		"viewfilter[3][value][][]": "%s",
+		"data[submit]": "查询"
 	}
 }

@@ -3,7 +3,6 @@
 # @Time    : 2020/12/29 下午1:49
 # @File    : webelement.py
 from oadriver.remote.webelement import WebElement as RemoteWebElement
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import re
@@ -63,5 +62,14 @@ class WebElement(RemoteWebElement):
         new_context = np.delete(context, 0, axis=1)
         df = pd.DataFrame(data=new_context, columns=colums[1:], index=context[:, 0])
         all_links = pages.find_all('a')
-        des_links = [all_links[1]['href'], all_links[3]['href']]
+        if len(all_links) < 4:
+            des_links = [all_links[1]['href'], ""]
+        else:
+            des_links = [all_links[1]['href'], all_links[3]['href']]
         return df,des_links
+
+    def get_dict_result3(self):
+        pages = self._soup.find('div', {'class': 'toolbar clearfix'})
+        count = pages.find('span', {"class":"list-count"})
+        pattern = re.compile(r"(\d+)")
+        return pattern.findall(count.text)[0]

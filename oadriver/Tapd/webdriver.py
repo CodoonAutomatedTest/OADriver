@@ -58,3 +58,13 @@ class TapDriver(Webdriver):
         bug_general_url = _load_bug_trace_conf()['bug_general_url']
         req_body = str(_load_bug_trace_conf()['bug_requrie_body']) % (_get_create_date(), version)
         return self.create_tapd_element(self._tapd.post(bug_general_url, eval(req_body)))
+
+    def bugs_non_touch_require(self, version, sys):
+        bug_general_url = _load_bug_trace_conf()['bug_non_requrie_url']
+        req_body = str(_load_bug_trace_conf()['bug_non_requrie_body']) % (version, sys)
+        return self.create_tapd_element(self._tapd.post(bug_general_url, eval(req_body)))
+
+
+if __name__ == "__main__":
+    tapd = TapDriver()
+    print(tapd.bugs_non_touch_require("9.54.0"))
