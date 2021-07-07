@@ -3,6 +3,7 @@
 	"bug_general_url": "https://www.tapd.cn/20041161/bugtrace/bugreports/stat_general/general",
 	"bug_non_requrie_url": "https://www.tapd.cn/20041161/bugtrace/buglists/query/1/created/desc?query_token=2021070239117f5e31646dde14de2cee94739e1e",
 	"bug_handle_url": "https://www.tapd.cn/20041161/bugtrace/bugreports/stat_age/age/systemreport-1000000000000000015",
+	"bug_status_chg_url": "https://www.tapd.cn/20041161/bugtrace/bugreports/stat_trend/trend/systemreport-1000000000000000013",
 	"bug_reg_body": {
 		"data[Bugreport][time_type]": 1,
 		"data[Bugreport][time_setting][from]": "2005-01-01",
@@ -106,5 +107,27 @@
 		"viewfilter[3][operator]": "IN",
 		"viewfilter[3][value][][]": "%s",
 		"data[submit]": "查询"
+	},
+	"bug_status_chg_body": {
+		"data[Bugreport][TrendStatItem][0]": "created",
+		"data[Bugreport][TrendStatItem][1]": "resolved",
+		"data[Bugreport][TrendStatItem][2]": "closed",
+		"data[Bugreport][time_type]": "0",
+		"data[Bugreport][time_setting][from]": "%s",
+		"data[Bugreport][time_setting][to]": "%s",
+		"data[Bugreport][TrendTimeInterval]": "day",
+		"data[Bugreport][TrendStatAccu][]": "0",
+		"data[Bugreport][IncludingHoliday][]": "1",
+		"data[Bugreport][create]": "生成报表",
+		"data[Bugreport][id]": "",
+		"data[Bugreport][issaveas]": "",
+		"data[Bugreport][params0]": "trend",
+		"data[Bugreport][params1]": "systemreport-1000000000000000013",
+		"data[Bugreport][title]": "缺陷每日变化趋势",
+		"data[Bugreport][visible_type]": "0",
+		"data[Bugreport][charttype]": "Column",
+		"data[Bugreport][order_type]": "order_default",
+		"data[is_ajax]": "",
+		"advanced_condition": "{\"optionType\":\"and\",\"data\":[{\"fieldLabel\":\"发现版本\",\"fieldSystemName\":\"version_report\",\"fieldOption\":\"single_in\",\"value\":\"%s\"}]}"
 	}
 }

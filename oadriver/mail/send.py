@@ -41,7 +41,7 @@ def _create_regression_message(version, table1):  # image1, table1, image2, tabl
 
 
 def _create_requrie_message(version, table1, non_and, non_ios, non_api, non_h5, non_hard):  # image1, table1, image2, table2, table3
-    table_context = """<h3>四、缺陷关联需求情况统计</h3><table border="1"><caption>V%s关联需求统计</caption><tr>""" % version
+    table_context = """<h3>五、缺陷关联需求情况统计</h3><table border="1"><caption>V%s关联需求统计</caption><tr>""" % version
     temp_context = ''
     for colum in table1[-1].keys():
         if colum == 'href':
@@ -83,17 +83,32 @@ def _create_24hours_message(version, df1, df2, links):
     return table_context
 
 
-def make_mail_message(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_hard, df4, links):
+def _create_daily_chg_message(version, table1):  # image1, table1, image2, table2, table3
+    table_context = """<h3>四、缺陷每日变化趋势</h3><p><img src="cid:image4"></p><table border="1"><caption>V%s缺陷每日变化趋势</caption><tr><th>日期</th>""" % version
+    for colum in table1.columns:
+        table_context += '<th>' + colum + '</th>'
+    table_context += '</tr><tr>'
+    for index, row in table1.iterrows():
+        table_context += '<td>' + index + '</td>'
+        for item in row:
+            table_context += '<td>' + item + '</td>'
+        table_context += '</tr>'
+    table_context += '</table>'
+    return table_context
+
+
+def make_mail_message(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_hard, df4, df5, links):
     mail_msg = """<p>Hi, all~</p><h1>V%s缺陷统计情况如下</h1>""" % version
     context1 = _create_general_message(version, df1)
     context2 = _create_regression_message(version, df2)
     context3 = _create_requrie_message(version, df3, non_and, non_ios, non_api, non_h5, non_hard)
     context4 = _create_24hours_message(version, df1, df4, links)
-    mail_msg = mail_msg + context1 + context2 + context4 + context3
+    context5 = _create_daily_chg_message(version, df5)
+    mail_msg = mail_msg + context1 + context2 + context4 + context5 + context3
     return mail_msg
 
 
-def send_mail(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_hard, df4, links, pic1, pic2, pic3, receivers):
+def send_mail(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_hard, df4, df5, links, pic1, pic2, pic3, pic4, receivers):
     # 设置收发邮件信息
     sender = 'xiaoqiang@codoon.com'
     # 企业邮箱 SMTP 服务
@@ -114,7 +129,7 @@ def send_mail(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_har
     msgAlternative = MIMEMultipart('alternative')
     message.attach(msgAlternative)
     # 邮件正文
-    mail_msg = make_mail_message(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_hard, df4, links)
+    mail_msg = make_mail_message(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_hard, df4, df5, links)
     msgAlternative.attach(MIMEText(mail_msg, 'html', 'utf-8'))
 
     current_path = os.path.abspath(os.path.dirname(__file__))
@@ -141,6 +156,13 @@ def send_mail(version, df1, df2, df3, non_and, non_ios, non_api, non_h5, non_har
     # 定义图片 ID，在 HTML 文本中引用
     msgImage3.add_header('Content-ID', '<image3>')
     message.attach(msgImage3)
+    # 指定图片为当前目录
+    fp = open(pic4, 'rb')
+    msgImage4 = MIMEImage(fp.read())
+    fp.close()
+    # 定义图片 ID，在 HTML 文本中引用
+    msgImage4.add_header('Content-ID', '<image4>')
+    message.attach(msgImage4)
     try:
         email_client = smtplib.SMTP_SSL(mail_host, port=465)
         email_client.login(mail_user, mail_pass)

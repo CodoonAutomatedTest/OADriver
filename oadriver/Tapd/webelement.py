@@ -73,3 +73,12 @@ class WebElement(RemoteWebElement):
         count = pages.find('span', {"class":"list-count"})
         pattern = re.compile(r"(\d+)")
         return pattern.findall(count.text)[0]
+
+    def get_dict_result4(self):
+        pages = self._soup.find('table', {'class': 'bug_stat_table'})
+        colums = [i.text.strip() for i in pages.find_all('th')]
+        cells = [i.text.strip() for i in pages.find_all('td')]
+        context = np.array(cells).reshape(int(len(cells) / len(colums)), len(colums))
+        new_context = np.delete(context, 0, axis=1)
+        df = pd.DataFrame(data=new_context, columns=colums[1:], index=context[:, 0])
+        return df
